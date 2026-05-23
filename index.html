@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>gut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:#0a0a0c;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;}
+.shell{width:100%;max-width:390px;height:100vh;max-height:844px;background:#0e0e10;display:flex;flex-direction:column;overflow:hidden;position:relative;border-left:0.5px solid #2a2a2e;border-right:0.5px solid #2a2a2e;}
+@media(min-width:420px){.shell{border-radius:36px;border:0.5px solid #2a2a2e;height:844px;}body{padding:16px;}}
+.statusbar{height:44px;background:#0e0e10;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;}
+.statusbar-time{font-size:15px;font-weight:500;color:#e8e8ec;letter-spacing:0.05em;}
+.statusbar-icons{display:flex;gap:6px;align-items:center;}
+.statusbar-icons i{font-size:14px;color:#888;}
+.header{padding:12px 24px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #1a1a1e;transition:border-color 0.3s,background 0.3s;}
+.header.flare-on{border-color:#2e1414;background:#0f0c0c;}
+.header-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#e8e8ec;letter-spacing:0.15em;}
+.icon-btn{width:34px;height:34px;border-radius:50%;border:0.5px solid #2c2c32;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;flex-shrink:0;}
+.icon-btn i{font-size:16px;color:#888;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:#e8e8ec;letter-spacing:0.22em;}
+.wordmark span{color:#7059c4;}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.screen.active{display:flex;}
+.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+.nav{height:76px;background:#111115;border-top:0.5px solid #1e1e24;display:flex;align-items:flex-start;justify-content:space-around;padding:12px 8px 0;flex-shrink:0;transition:border-color 0.3s,background 0.3s;}
+.nav.flare-on{border-color:#2a1414;background:#110e0e;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:0 10px;min-width:52px;opacity:0.3;border:none;background:transparent;}
+.nav-item.active{opacity:1;}
+.nav-item.active .nav-icon,.nav-item.active .nav-label{color:#7059c4;}
+.nav.flare-on .nav-item.active .nav-icon,.nav.flare-on .nav-item.active .nav-label{color:#c94040;}
+.nav.flare-on .nav-pip{background:#c94040;}
+.nav-icon{font-size:22px;color:#888;height:24px;display:flex;align-items:center;justify-content:center;}
+.nav-label{font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:#666;}
+.nav-pip{width:4px;height:4px;border-radius:50%;background:#7059c4;margin-top:1px;}
+.home-bar{height:28px;display:flex;align-items:center;justify-content:center;background:#111115;flex-shrink:0;}
+.home-bar-inner{width:120px;height:4px;background:#2a2a30;border-radius:3px;}
+.sec-label{font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:#3d3d52;margin-bottom:10px;}
+.divider{height:0.5px;background:#1a1a1e;}
+.purple-btn{background:#7059c4;color:#fff;border:none;border-radius:12px;padding:14px;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;width:100%;}
+.ghost-btn{background:transparent;color:#555568;border:0.5px solid #2a2a36;border-radius:12px;padding:12px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;}
+.tag{padding:5px 13px;border-radius:20px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:0.5px solid #2a2a36;background:transparent;color:#444458;}
+.tag.on{background:#1e1830;border-color:#4a3a8a;color:#a090e0;}
+.tag.bad.on{background:#1f0d0d;border-color:#4a1a1a;color:#c06060;}
+.tog-track{width:42px;height:24px;border-radius:24px;border:0.5px solid #2a2a38;background:#141418;cursor:pointer;position:relative;flex-shrink:0;transition:background 0.3s,border-color 0.3s;}
+.tog-track.on{background:#1e1830;border-color:#4a3a8a;}
+.tog-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#3d3d52;transition:transform 0.25s,background 0.25s;}
+.tog-track.on .tog-thumb{transform:translateX(18px);background:#a090e0;}
+/* HOME */
+.home-card{background:#141418;border:0.5px solid #202028;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;gap:10px;height:90px;cursor:pointer;margin-bottom:10px;}
+.home-card i{font-size:20px;color:#3b3650;}
+.home-card span{font-size:13px;color:#3d3d50;letter-spacing:0.08em;}
+.home-small{background:#141418;border:0.5px solid #202028;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;height:58px;margin-bottom:8px;cursor:pointer;}
+.home-small span{font-size:13px;color:#3d3d50;letter-spacing:0.06em;}
+.scan-fab{width:60px;height:60px;border-radius:50%;background:#7059c4;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 0 0 6px #0e0e10,0 0 0 7px #2a2040;margin:16px auto 0;}
+.scan-fab i{font-size:26px;color:#fff;}
+/* SCAN */
+.food-input{width:100%;background:#141418;border:0.5px solid #2a2a36;border-radius:12px;padding:12px 14px;color:#c8c8d8;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;line-height:1.5;outline:none;}
+.food-input:focus{border-color:#4a3a8a;}
+.food-input::placeholder{color:#2e2e42;}
+.mode-pill{padding:5px 13px;border-radius:20px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:0.5px solid #2a2a36;background:transparent;color:#444458;}
+.mode-pill.active{background:#1e1830;border-color:#4a3a8a;color:#a090e0;}
+.tab-bar{display:flex;background:#141418;border-bottom:0.5px solid #1a1a1e;flex-shrink:0;}
+.tab-btn{flex:1;padding:10px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:none;background:transparent;color:#444458;border-bottom:2px solid transparent;}
+.tab-btn.active{color:#a090e0;border-bottom-color:#7059c4;}
+.thinking{display:flex;align-items:center;gap:10px;padding:24px 0;}
+.thinking-dot{width:6px;height:6px;border-radius:50%;background:#3d2e70;animation:pulse 1.2s ease-in-out infinite;}
+.thinking-dot:nth-child(2){animation-delay:0.2s;}.thinking-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+.thinking span{font-size:12px;color:#3d3d52;letter-spacing:0.1em;text-transform:uppercase;}
+.verdict-hero{border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.verdict-hero.good{background:#0d1f12;border:0.5px solid #1e4428;}
+.verdict-hero.ehh{background:#1f1a0a;border:0.5px solid #3d3010;}
+.verdict-hero.ugly{background:#1f0d0d;border:0.5px solid #3d1414;}
+.vhicon{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vhicon.good{background:#173404;}.vhicon.good i{color:#97C459;}
+.vhicon.ehh{background:#412402;}.vhicon.ehh i{color:#EF9F27;}
+.vhicon.ugly{background:#501313;}.vhicon.ugly i{color:#F09595;}
+.vhicon i{font-size:20px;}
+.vh-verdict{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:3px;}
+.vh-verdict.good{color:#639922;}.vh-verdict.ehh{color:#BA7517;}.vh-verdict.ugly{color:#A32D2D;}
+.vh-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:#e8e8ec;line-height:1.15;}
+.vh-sub{font-size:11px;color:#555568;margin-top:3px;}
+.ingr-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;background:#141418;border:0.5px solid #1e1e28;margin-bottom:6px;}
+.idot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.idot.good{background:#639922;}.idot.ehh{background:#BA7517;}.idot.ugly{background:#A32D2D;}
+.iname{font-size:13px;color:#c8c8d8;}
+.inote{font-size:11px;color:#3d3d52;margin-top:2px;line-height:1.4;}
+.itag{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:3px 8px;border-radius:6px;font-weight:500;flex-shrink:0;margin-top:1px;}
+.itag.good{background:#173404;color:#97C459;}.itag.ehh{background:#412402;color:#EF9F27;}.itag.ugly{background:#501313;color:#F09595;}
+.swap-card{background:#141418;border:0.5px solid #1e1e2e;border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.swap-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.swap-top i{font-size:15px;color:#7059c4;}
+.swap-top span{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#7059c4;}
+.swap-item{font-size:12px;color:#666680;padding:5px 0;border-bottom:0.5px solid #1e1e28;line-height:1.45;}
+.swap-item:last-child{border-bottom:none;padding-bottom:0;}
+.flare-badge-btn{font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;border-radius:20px;padding:5px 12px;border:0.5px solid #2a2a36;color:#444458;background:transparent;cursor:pointer;font-family:'Rajdhani',sans-serif;transition:all 0.3s;}
+.flare-badge-btn.on{background:#2e1010;border-color:#6b2020;color:#F09595;}
+/* LOG */
+.week-strip{padding:14px 20px 12px;border-bottom:0.5px solid #1a1a1e;flex-shrink:0;}
+.week-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
+.day-col{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.day-name{font-size:10px;letter-spacing:0.1em;color:#3d3d52;text-transform:uppercase;}
+.day-dot{width:8px;height:8px;border-radius:50%;margin:1px auto;}
+.day-dot.good{background:#3B6D11;}.day-dot.ehh{background:#854F0B;}.day-dot.ugly{background:#791F1F;}.day-dot.empty{background:#1e1e28;}
+.day-num{font-size:11px;font-weight:500;color:#555568;}
+.day-num.today{color:#a090e0;}
+.summary-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px 20px;border-bottom:0.5px solid #1a1a1e;flex-shrink:0;}
+.stat-cell{background:#141418;border-radius:10px;padding:10px 12px;border:0.5px solid #1e1e28;}
+.stat-num{font-size:22px;font-weight:500;line-height:1;}
+.stat-num.good{color:#639922;}.stat-num.ehh{color:#BA7517;}.stat-num.ugly{color:#A32D2D;}
+.stat-lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#3d3d52;margin-top:3px;}
+.filter-row{display:flex;gap:6px;padding:10px 20px;border-bottom:0.5px solid #1a1a1e;flex-shrink:0;overflow-x:auto;}
+.filter-row::-webkit-scrollbar{display:none;}
+.f-pill{padding:5px 14px;border-radius:20px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:0.5px solid #2a2a36;background:transparent;color:#555568;white-space:nowrap;}
+.f-pill.active{background:#1e1830;border-color:#4a3a8a;color:#a090e0;}
+.log-entry{background:#141418;border:0.5px solid #1e1e28;border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;}
+.entry-verdict{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.entry-verdict.good{background:#173404;}.entry-verdict.good i{color:#97C459;}
+.entry-verdict.ehh{background:#412402;}.entry-verdict.ehh i{color:#EF9F27;}
+.entry-verdict.ugly{background:#501313;}.entry-verdict.ugly i{color:#F09595;}
+.entry-verdict i{font-size:16px;}
+.entry-name{font-size:14px;color:#c8c8d8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.entry-meta{font-size:11px;color:#3d3d52;margin-top:2px;}
+.entry-time{font-size:11px;color:#3d3d52;}
+.flag-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:2px;}
+.flag-dot.ugly{background:#791F1F;}.flag-dot.ehh{background:#854F0B;}
+/* FLARE */
+.flare-scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;transition:background 0.4s;}
+.flare-scroll::-webkit-scrollbar{display:none;}
+.flare-scroll.on{background:#0f0c0c;}
+.hero-zone{padding:24px 24px 20px;border-bottom:0.5px solid #1a1a1e;transition:border-color 0.4s,background 0.4s;}
+.hero-zone.on{border-color:#2e1414;background:#0f0c0c;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#e8e8ec;line-height:1.1;}
+.hero-state{font-style:normal;color:#3d3d5a;transition:color 0.3s;}
+.hero-state.on{color:#c94040;}
+.big-toggle{width:64px;height:34px;border-radius:34px;border:0.5px solid #2a2a38;background:#141418;cursor:pointer;position:relative;flex-shrink:0;transition:background 0.35s,border-color 0.35s;}
+.big-toggle.on{background:#2e1010;border-color:#6b2020;}
+.big-toggle-thumb{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#3d3d52;transition:transform 0.3s,background 0.3s;}
+.big-toggle.on .big-toggle-thumb{transform:translateX(30px);background:#c94040;}
+.dur-row{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding:12px 14px;border-radius:12px;background:#141418;border:0.5px solid #1e1e28;transition:background 0.4s,border-color 0.4s;}
+.dur-row.on{background:#1a0e0e;border-color:#2e1818;}
+.dur-icon{width:32px;height:32px;border-radius:8px;background:#1e1e28;display:flex;align-items:center;justify-content:center;transition:background 0.4s;}
+.dur-row.on .dur-icon{background:#2e1414;}
+.dur-icon i{font-size:16px;color:#555568;transition:color 0.4s;}
+.dur-row.on .dur-icon i{color:#a03030;}
+.dur-val{font-size:14px;color:#555568;margin-top:1px;transition:color 0.4s;}
+.dur-row.on .dur-val{color:#c07060;}
+.dur-btn{padding:5px 12px;border-radius:8px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:0.5px solid #2a2a36;background:transparent;color:#555568;}
+.dur-btn.active-dur{background:#1e1830;border-color:#4a3a8a;color:#a090e0;}
+.flare-scroll.on .dur-btn.active-dur{background:#2a1010;border-color:#6b2020;color:#e08080;}
+.change-card{background:#141418;border:0.5px solid #1e1e28;border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:flex-start;gap:12px;transition:background 0.4s,border-color 0.4s;}
+.flare-scroll.on .change-card{background:#170d0d;border-color:#2e1414;}
+.change-icon{width:34px;height:34px;border-radius:9px;background:#1e1e28;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.4s;}
+.flare-scroll.on .change-icon{background:#2a1010;}
+.change-icon i{font-size:16px;color:#3d3d58;transition:color 0.4s;}
+.flare-scroll.on .change-icon i{color:#c06060;}
+.cpill{display:inline-block;margin-top:5px;padding:3px 9px;border-radius:6px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;transition:background 0.4s,color 0.4s;}
+.cpill.off{background:#1e1e28;color:#3d3d52;}
+.cpill.on{background:#2e1010;color:#c06060;}
+.avoid-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:16px;}
+.avoid-item{background:#141418;border:0.5px solid #1e1e28;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;transition:background 0.4s,border-color 0.4s;}
+.flare-scroll.on .avoid-item{background:#170d0d;border-color:#2e1414;}
+.avoid-dot{width:7px;height:7px;border-radius:50%;background:#2a2a3a;flex-shrink:0;transition:background 0.4s;}
+.flare-scroll.on .avoid-dot{background:#7a2020;}
+.avoid-name{font-size:12px;color:#444458;transition:color 0.4s;}
+.flare-scroll.on .avoid-name{color:#c07060;}
+.end-flare-btn{margin:16px 24px 20px;padding:14px;border-radius:12px;text-align:center;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:0.5px solid #4a1a1a;background:transparent;color:#a03030;width:calc(100% - 48px);}
+/* PROFILE */
+.avatar-zone{padding:20px 24px;border-bottom:0.5px solid #1a1a1e;display:flex;align-items:center;gap:18px;}
+.avatar-ring{width:64px;height:64px;border-radius:50%;border:1.5px solid #3d2e70;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#141418;}
+.avatar-initials{font-family:'Cormorant Garamond',serif;font-size:22px;color:#a090e0;}
+.avatar-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#e8e8ec;}
+.avatar-sub{font-size:11px;color:#555568;letter-spacing:0.12em;margin-top:3px;text-transform:uppercase;}
+.avatar-edit{margin-left:auto;padding:6px 14px;border-radius:20px;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:500;cursor:pointer;border:0.5px solid #3d2e70;background:transparent;color:#a090e0;}
+.stat-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:7px;}
+.pstat{background:#141418;border:0.5px solid #1e1e28;border-radius:11px;padding:12px 14px;}
+.pstat-num{font-size:22px;font-weight:500;line-height:1;color:#e8e8ec;}
+.pstat-lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#3d3d52;margin-top:3px;}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:#141418;border:0.5px solid #1e1e28;border-radius:11px;margin-bottom:7px;cursor:pointer;}
+.prow-icon{width:32px;height:32px;border-radius:8px;background:#1e1828;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.prow-icon i{font-size:16px;color:#a090e0;}
+.prow-icon.n{background:#1e1e28;}.prow-icon.n i{color:#555568;}
+.prow-title{font-size:13px;color:#c8c8d8;}
+.prow-sub{font-size:11px;color:#3d3d52;margin-top:2px;}
+.tag-grid{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 6px;}
+.sec-pad{padding:16px 24px 0;}
+.app-ver{text-align:center;padding:20px 0 4px;font-size:11px;color:#252530;letter-spacing:0.18em;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="statusbar">
+  <span class="statusbar-time" id="clock">9:41</span>
+  <div class="statusbar-icons"><i class="ti ti-wifi"></i><i class="ti ti-battery-2"></i></div>
+</div>
+
+<div class="header" id="main-header">
+  <div id="h-left"></div>
+  <div id="h-center"></div>
+  <div id="h-right"></div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="scroll" style="padding:24px 24px 16px;">
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:500;letter-spacing:0.25em;text-transform:uppercase;color:#3d3d4a;margin-bottom:4px;">Good morning</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:#e8e8ec;line-height:1.1;">How are you<br>feeling <em style="color:#7059c4;font-style:normal;">today?</em></div>
+      <div style="width:32px;height:2px;background:#7059c4;border-radius:2px;margin-top:8px;"></div>
+    </div>
+    <div style="height:0.5px;background:#1e1e22;margin:4px 0 16px;"></div>
+    <div class="home-card" onclick="goTo('scan')"><i class="ti ti-scan"></i><span>Scan food</span></div>
+    <div class="home-small" onclick="goTo('log')"><div style="width:8px;height:8px;border-radius:50%;background:#2d2840;flex-shrink:0;"></div><span>Today's log</span></div>
+    <div class="home-small" onclick="goTo('flare')"><div style="width:8px;height:8px;border-radius:50%;background:#1d2e40;flex-shrink:0;"></div><span>Flare mode</span></div>
+    <div class="home-small" onclick="goTo('profile')"><div style="width:8px;height:8px;border-radius:50%;background:#1a2e1a;flex-shrink:0;"></div><span>My profile</span></div>
+    <div style="text-align:center;margin-top:20px;"><button class="scan-fab" onclick="goTo('scan')"><i class="ti ti-scan"></i></button></div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div class="screen" id="scan">
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-camera" onclick="switchScanTab('camera')">Camera</button>
+    <button class="tab-btn" id="tab-result" onclick="switchScanTab('result')">Result</button>
+  </div>
+  <div id="scan-camera" class="scroll" style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <div style="font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#3d3d52;margin-bottom:7px;">Describe the food or paste ingredients</div>
+      <textarea class="food-input" id="food-input" rows="4" placeholder="e.g. Spicy chicken burger with mayo, jalapeños, brioche bun, cheddar..."></textarea>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#3d3d52;margin-bottom:7px;">Scan mode</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="mode-pill active" onclick="setMode(this)">Menu</button>
+        <button class="mode-pill" onclick="setMode(this)">Ingredients</button>
+        <button class="mode-pill" onclick="setMode(this)">Recipe</button>
+        <button class="mode-pill" onclick="setMode(this)">Restaurant</button>
+      </div>
+    </div>
+    <button class="purple-btn" id="scan-btn" onclick="runScan()"><i class="ti ti-scan" style="font-size:14px;margin-right:6px;vertical-align:-1px;"></i>Analyse food</button>
+  </div>
+  <div id="scan-result" class="scroll" style="padding:16px 20px;display:none;">
+    <div id="result-content">
+      <div style="padding:40px 0;text-align:center;"><i class="ti ti-scan" style="font-size:32px;color:#2a2a38;"></i><p style="font-size:12px;color:#3d3d52;letter-spacing:0.1em;text-transform:uppercase;margin-top:10px;">No scan yet</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="screen" id="log">
+  <div class="week-strip">
+    <div class="sec-label">This week</div>
+    <div class="week-days" id="week-days"></div>
+  </div>
+  <div class="summary-row">
+    <div class="stat-cell"><div class="stat-num good">9</div><div class="stat-lbl">Good</div></div>
+    <div class="stat-cell"><div class="stat-num ehh">5</div><div class="stat-lbl">Ehh</div></div>
+    <div class="stat-cell"><div class="stat-num ugly">2</div><div class="stat-lbl">Ugly</div></div>
+  </div>
+  <div class="filter-row" id="filter-row">
+    <button class="f-pill active" data-filter="all">All</button>
+    <button class="f-pill" data-filter="good">Good</button>
+    <button class="f-pill" data-filter="ehh">Ehh</button>
+    <button class="f-pill" data-filter="ugly">Ugly</button>
+    <button class="f-pill" data-filter="flagged">Flagged</button>
+  </div>
+  <div class="scroll" id="log-list" style="padding:0 20px 16px;"></div>
+</div>
+
+<!-- FLARE -->
+<div class="screen" id="flare">
+  <div class="flare-scroll" id="flare-scroll">
+    <div class="hero-zone" id="hero-zone">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div>
+          <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:#3d3d52;margin-bottom:4px;">Flare mode</div>
+          <div class="hero-title">Restrictions <em class="hero-state" id="hero-state">off</em></div>
+        </div>
+        <div class="big-toggle" id="big-toggle" onclick="toggleFlare()"><div class="big-toggle-thumb"></div></div>
+      </div>
+      <p style="font-size:13px;color:#3d3d52;line-height:1.55;" id="flare-desc">When inactive, gut uses standard Crohn's / IBD guidelines. Toggle on during an active flare to tighten food verdicts in real time.</p>
+      <div class="dur-row" id="dur-row">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="dur-icon"><i class="ti ti-clock"></i></div>
+          <div>
+            <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#3d3d52;">Flare duration</div>
+            <div class="dur-val" id="dur-val">Not active</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="dur-btn active-dur" onclick="setDur(this,'1d')">1d</button>
+          <button class="dur-btn" onclick="setDur(this,'3d')">3d</button>
+          <button class="dur-btn" onclick="setDur(this,'7d')">7d</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 24px 0;">
+      <div class="sec-label">What changes when active</div>
+      <div class="change-card"><div class="change-icon"><i class="ti ti-ban"></i></div><div><div style="font-size:13px;color:#c8c8d8;">Stricter verdicts</div><div style="font-size:11px;color:#3d3d52;margin-top:2px;line-height:1.45;">Ehh foods become Ugly. Borderline ingredients flagged as critical.</div><span class="cpill off" id="cp1">Standard</span></div></div>
+      <div class="change-card"><div class="change-icon"><i class="ti ti-droplet-off"></i></div><div><div style="font-size:13px;color:#c8c8d8;">Fibre restrictions</div><div style="font-size:11px;color:#3d3d52;margin-top:2px;line-height:1.45;">Raw veg, seeds, skins & high-fibre grains all flagged.</div><span class="cpill off" id="cp2">Relaxed</span></div></div>
+      <div class="change-card"><div class="change-icon"><i class="ti ti-milk-off"></i></div><div><div style="font-size:13px;color:#c8c8d8;">Dairy zeroed out</div><div style="font-size:11px;color:#3d3d52;margin-top:2px;line-height:1.45;">All dairy flagged as Ugly regardless of portion size.</div><span class="cpill off" id="cp3">Monitor</span></div></div>
+      <div class="change-card"><div class="change-icon"><i class="ti ti-flame-off"></i></div><div><div style="font-size:13px;color:#c8c8d8;">Spice & fat limits</div><div style="font-size:11px;color:#3d3d52;margin-top:2px;line-height:1.45;">Chilli, garlic, onion & fried foods promoted to Critical.</div><span class="cpill off" id="cp4">Flagged</span></div></div>
+    </div>
+    <div style="padding:16px 24px 0;">
+      <div class="sec-label">Avoid entirely during flare</div>
+      <div class="avoid-grid">
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Raw salad leaves</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Fried foods</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Whole grains</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Dairy products</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Chilli & spices</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Beans & lentils</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Carbonated drinks</span></div>
+        <div class="avoid-item"><div class="avoid-dot"></div><span class="avoid-name">Alcohol</span></div>
+      </div>
+    </div>
+    <button class="end-flare-btn" id="end-flare-btn" style="display:none;" onclick="toggleFlare()"><i class="ti ti-circle-check" style="font-size:14px;margin-right:6px;vertical-align:-1px;"></i>End flare — return to normal</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="profile">
+  <div class="scroll">
+    <div class="avatar-zone">
+      <div class="avatar-ring"><span class="avatar-initials">JD</span></div>
+      <div><div class="avatar-name">Jamie D.</div><div class="avatar-sub">Crohn's · since 2019</div></div>
+      <button class="avatar-edit">Edit</button>
+    </div>
+    <div class="sec-pad" style="padding-top:18px;">
+      <div class="sec-label">This week</div>
+      <div class="stat-pair">
+        <div class="pstat"><div class="pstat-num" style="color:#a090e0;">16</div><div class="pstat-lbl">Meals scanned</div></div>
+        <div class="pstat"><div class="pstat-num" style="color:#639922;">56%</div><div class="pstat-lbl">Good rate</div></div>
+      </div>
+      <div class="stat-pair">
+        <div class="pstat"><div class="pstat-num">0</div><div class="pstat-lbl">Flare days</div></div>
+        <div class="pstat"><div class="pstat-num" style="color:#BA7517;">5</div><div class="pstat-lbl">Flagged foods</div></div>
+      </div>
+    </div>
+    <div class="divider" style="margin-top:16px;"></div>
+    <div class="sec-pad" style="padding-top:16px;">
+      <div class="sec-label">Condition profile</div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon"><i class="ti ti-dna"></i></div><div><div class="prow-title">Diagnosis</div><div class="prow-sub">Crohn's disease · ileal</div></div></div><i class="ti ti-chevron-right" style="color:#3d3d52;font-size:14px;"></i></div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon"><i class="ti ti-pill"></i></div><div><div class="prow-title">Medications</div><div class="prow-sub">Azathioprine · Mesalazine</div></div></div><i class="ti ti-chevron-right" style="color:#3d3d52;font-size:14px;"></i></div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon"><i class="ti ti-stethoscope"></i></div><div><div class="prow-title">Care team</div><div class="prow-sub">Dr. Scala · IBD nurse linked</div></div></div><i class="ti ti-chevron-right" style="color:#3d3d52;font-size:14px;"></i></div>
+    </div>
+    <div class="divider" style="margin-top:8px;"></div>
+    <div class="sec-pad" style="padding-top:16px;">
+      <div class="sec-label">Known triggers</div>
+      <div class="tag-grid">
+        <button class="tag bad on" onclick="this.classList.toggle('on')">Dairy</button>
+        <button class="tag bad on" onclick="this.classList.toggle('on')">Spicy foods</button>
+        <button class="tag bad on" onclick="this.classList.toggle('on')">Raw veg</button>
+        <button class="tag bad on" onclick="this.classList.toggle('on')">Alcohol</button>
+        <button class="tag bad on" onclick="this.classList.toggle('on')">Fried foods</button>
+        <button class="tag bad" onclick="this.classList.toggle('on')">Gluten</button>
+        <button class="tag bad" onclick="this.classList.toggle('on')">Caffeine</button>
+        <button class="tag bad" onclick="this.classList.toggle('on')">Nuts</button>
+      </div>
+    </div>
+    <div class="divider" style="margin-top:8px;"></div>
+    <div class="sec-pad" style="padding-top:16px;">
+      <div class="sec-label">Dietary preferences</div>
+      <div class="tag-grid">
+        <button class="tag on" onclick="this.classList.toggle('on')">Low residue</button>
+        <button class="tag on" onclick="this.classList.toggle('on')">Low fat</button>
+        <button class="tag on" onclick="this.classList.toggle('on')">Low fibre</button>
+        <button class="tag" onclick="this.classList.toggle('on')">Gluten-free</button>
+        <button class="tag" onclick="this.classList.toggle('on')">Lactose-free</button>
+        <button class="tag" onclick="this.classList.toggle('on')">Vegetarian</button>
+      </div>
+    </div>
+    <div class="divider" style="margin-top:8px;"></div>
+    <div class="sec-pad" style="padding-top:16px;">
+      <div class="sec-label">Food database</div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon"><i class="ti ti-book"></i></div><div><div class="prow-title">Dr. Scala guidelines</div><div class="prow-sub">Primary source · active</div></div></div><div class="tog-track on" onclick="this.classList.toggle('on')"><div class="tog-thumb"></div></div></div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon"><i class="ti ti-building-hospital"></i></div><div><div class="prow-title">Crohn's &amp; Colitis Foundation</div><div class="prow-sub">Secondary source · active</div></div></div><div class="tog-track on" onclick="this.classList.toggle('on')"><div class="tog-thumb"></div></div></div>
+    </div>
+    <div class="divider" style="margin-top:8px;"></div>
+    <div class="sec-pad" style="padding-top:16px;">
+      <div class="sec-label">Notifications</div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon n"><i class="ti ti-bell"></i></div><div><div class="prow-title">Meal reminders</div></div></div><div class="tog-track on" onclick="this.classList.toggle('on')"><div class="tog-thumb"></div></div></div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon n"><i class="ti ti-flame"></i></div><div><div class="prow-title">Flare check-ins</div></div></div><div class="tog-track on" onclick="this.classList.toggle('on')"><div class="tog-thumb"></div></div></div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon n"><i class="ti ti-chart-bar"></i></div><div><div class="prow-title">Weekly summary</div></div></div><div class="tog-track" onclick="this.classList.toggle('on')"><div class="tog-thumb"></div></div></div>
+    </div>
+    <div class="divider" style="margin-top:8px;"></div>
+    <div class="sec-pad" style="padding-top:16px;padding-bottom:4px;">
+      <div class="sec-label">Account</div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon n"><i class="ti ti-download"></i></div><div><div class="prow-title">Export my data</div></div></div><i class="ti ti-chevron-right" style="color:#3d3d52;font-size:14px;"></i></div>
+      <div class="prow"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon n"><i class="ti ti-lock"></i></div><div><div class="prow-title">Privacy &amp; data</div></div></div><i class="ti ti-chevron-right" style="color:#3d3d52;font-size:14px;"></i></div>
+      <div class="prow" style="margin-bottom:0;"><div style="display:flex;align-items:center;gap:12px;"><div class="prow-icon n"><i class="ti ti-info-circle"></i></div><div><div class="prow-title">About gut</div><div class="prow-sub">v0.1.0 · part of the suite</div></div></div><i class="ti ti-chevron-right" style="color:#3d3d52;font-size:14px;"></i></div>
+    </div>
+    <div class="app-ver">gut · pump · sweet</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="main-nav">
+  <button class="nav-item active" id="nav-home" onclick="goTo('home')"><div class="nav-icon"><i class="ti ti-home"></i></div><div class="nav-label">Home</div><div class="nav-pip" id="pip-home"></div></button>
+  <button class="nav-item" id="nav-scan" onclick="goTo('scan')"><div class="nav-icon"><i class="ti ti-scan"></i></div><div class="nav-label">Scan</div><div class="nav-pip" id="pip-scan" style="display:none;"></div></button>
+  <button class="nav-item" id="nav-log" onclick="goTo('log')"><div class="nav-icon"><i class="ti ti-clipboard-list"></i></div><div class="nav-label">Log</div><div class="nav-pip" id="pip-log" style="display:none;"></div></button>
+  <button class="nav-item" id="nav-flare" onclick="goTo('flare')"><div class="nav-icon"><i class="ti ti-flame"></i></div><div class="nav-label">Flare</div><div class="nav-pip" id="pip-flare" style="display:none;"></div></button>
+  <button class="nav-item" id="nav-profile" onclick="goTo('profile')"><div class="nav-icon"><i class="ti ti-user"></i></div><div class="nav-label">Profile</div><div class="nav-pip" id="pip-profile" style="display:none;"></div></button>
+</nav>
+<div class="home-bar"><div class="home-bar-inner"></div></div>
+
+<script>
+// Clock
+function tick(){const n=new Date();document.getElementById('clock').textContent=n.getHours()+':'+(n.getMinutes()<10?'0':'')+n.getMinutes();}
+tick();setInterval(tick,10000);
+
+// Nav
+const SCREENS=['home','scan','log','flare','profile'];
+const HEADERS={
+  home:{l:`<svg width="30" height="30" viewBox="0 0 34 34" fill="none"><ellipse cx="17" cy="17" rx="16" ry="16" stroke="#2d2840" stroke-width="0.75"/><path d="M17 6C11 6 7 10.5 7 17c0 5 3 8.5 7 9.5V22c-2-1-3-2.5-3-5 0-4.5 2.5-7 6-7s6 2.5 6 7c0 2.5-1 4-3 5v4.5c4-1 7-4.5 7-9.5 0-6.5-4-11-10-11z" fill="#7059c4" opacity="0.9"/></svg>`,
+        c:`<span class="wordmark">g<span>u</span>t</span>`,
+        r:`<div class="icon-btn"><i class="ti ti-bell"></i></div>`},
+  scan:{l:`<div class="icon-btn" onclick="goTo('home')"><i class="ti ti-arrow-left"></i></div>`,
+        c:`<span class="header-title">scan</span>`,
+        r:`<button class="flare-badge-btn" id="flare-scan-badge" onclick="toggleFlare()">Normal</button>`},
+  log: {l:`<div class="icon-btn" onclick="goTo('home')"><i class="ti ti-arrow-left"></i></div>`,
+        c:`<span class="header-title">log</span>`,
+        r:`<div class="icon-btn"><i class="ti ti-calendar"></i></div>`},
+  flare:{l:`<div class="icon-btn" onclick="goTo('home')"><i class="ti ti-arrow-left"></i></div>`,
+         c:`<span class="header-title">flare</span>`,
+         r:`<span id="flare-header-badge" style="font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;border-radius:20px;padding:4px 12px;border:0.5px solid #2a2a36;color:#444458;">inactive</span>`},
+  profile:{l:`<div class="icon-btn" onclick="goTo('home')"><i class="ti ti-arrow-left"></i></div>`,
+           c:`<span class="header-title">profile</span>`,
+           r:`<div class="icon-btn"><i class="ti ti-settings"></i></div>`}
+};
+
+function goTo(s){
+  SCREENS.forEach(id=>{
+    document.getElementById(id).classList.toggle('active',id===s);
+    document.getElementById('nav-'+id).classList.toggle('active',id===s);
+    const pip=document.getElementById('pip-'+id);
+    if(pip)pip.style.display=id===s?'block':'none';
+  });
+  const h=HEADERS[s];
+  document.getElementById('h-left').innerHTML=h.l;
+  document.getElementById('h-center').innerHTML=h.c;
+  document.getElementById('h-right').innerHTML=h.r;
+  updateFlareUI();
+}
+goTo('home');
+
+// Flare
+let flareOn=false,activeDur='1d';
+const durLabels={'1d':'1 day','3d':'3 days','7d':'7 days'};
+function toggleFlare(){flareOn=!flareOn;updateFlareUI();}
+function updateFlareUI(){
+  const ids=['flare-scroll','hero-zone','big-toggle'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',flareOn);});
+  const hs=document.getElementById('hero-state');if(hs){hs.textContent=flareOn?'on':'off';hs.classList.toggle('on',flareOn);}
+  const dr=document.getElementById('dur-row');if(dr)dr.classList.toggle('on',flareOn);
+  const dv=document.getElementById('dur-val');if(dv)dv.textContent=flareOn?'Active — '+durLabels[activeDur]:'Not active';
+  const fd=document.getElementById('flare-desc');if(fd)fd.textContent=flareOn?'Flare mode is active. All food scans now use tightened IBD flare guidelines. Verdicts are stricter across the board.':'When inactive, gut uses standard Crohn\'s / IBD guidelines. Toggle on during an active flare to tighten food verdicts in real time.';
+  const eb=document.getElementById('end-flare-btn');if(eb)eb.style.display=flareOn?'block':'none';
+  document.getElementById('main-nav').classList.toggle('flare-on',flareOn);
+  document.getElementById('main-header').classList.toggle('flare-on',flareOn);
+  [['cp1','Standard','Strict'],['cp2','Relaxed','Locked'],['cp3','Monitor','Avoid'],['cp4','Flagged','Critical']].forEach(([id,off,on])=>{
+    const el=document.getElementById(id);if(el){el.textContent=flareOn?on:off;el.className='cpill '+(flareOn?'on':'off');}
+  });
+  const sb=document.getElementById('flare-scan-badge');if(sb){sb.textContent=flareOn?'Flare on':'Normal';sb.classList.toggle('on',flareOn);}
+  const hb=document.getElementById('flare-header-badge');if(hb){hb.textContent=flareOn?'active':'inactive';hb.style.background=flareOn?'#2e1010':'transparent';hb.style.borderColor=flareOn?'#6b2020':'#2a2a36';hb.style.color=flareOn?'#F09595':'#444458';}
+}
+function setDur(btn,dur){
+  activeDur=dur;
+  document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('active-dur'));
+  btn.classList.add('active-dur');
+  const dv=document.getElementById('dur-val');if(dv&&flareOn)dv.textContent='Active — '+durLabels[dur];
+}
+
+// Scan tabs
+function switchScanTab(t){
+  document.getElementById('scan-camera').style.display=t==='camera'?'flex':'none';
+  document.getElementById('scan-result').style.display=t==='result'?'block':'none';
+  document.getElementById('tab-camera').classList.toggle('active',t==='camera');
+  document.getElementById('tab-result').classList.toggle('active',t==='result');
+}
+function setMode(el){document.querySelectorAll('.mode-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');}
+
+// AI Scan
+const VI={good:'ti-circle-check',ehh:'ti-alert-triangle',ugly:'ti-circle-x'};
+async function runScan(){
+  const text=document.getElementById('food-input').value.trim();
+  if(!text){alert('Please describe the food first.');return;}
+  const btn=document.getElementById('scan-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="font-size:14px;margin-right:6px;vertical-align:-1px;"></i>Analysing...';
+  switchScanTab('result');
+  document.getElementById('result-content').innerHTML='<div class="thinking"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div><span>Analysing ingredients</span></div>';
+  const sys=`You are a Crohn's/IBD dietary analysis engine for the gut health app. Return ONLY a JSON object, no markdown, no backticks.
+${flareOn?'FLARE MODE: Apply maximum restrictions. All Ehh items become Ugly. Dairy, raw veg, high-fibre, spicy, fried are all Ugly.':'Apply standard Crohn\'s/IBD guidelines.'}
+Good: lean proteins, white rice, cooked low-fibre veg, bananas, plain bread, eggs, oats.
+Ehh: dairy, mild spices, refined grains, small fat amounts.
+Ugly: raw veg, high-fibre, fried/fatty, spicy, alcohol, carbonated, beans, lentils, seeds, skins, raw garlic/onion.
+Return: {"food_name":"","verdict":"good"|"ehh"|"ugly","summary":"one sentence","ingredients":[{"name":"","verdict":"good"|"ehh"|"ugly","reason":"under 10 words"}],"swaps":["","",""]}
+List 3-7 ingredients. 2-3 swaps.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:'Analyse for Crohn\'s/IBD: '+text}]})});
+    const data=await res.json();
+    const d=JSON.parse(data.content.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim());
+    const v=d.verdict;
+    const vl={good:'Good — safe to eat',ehh:'Ehh — proceed with caution',ugly:'Ugly — avoid if flaring'}[v]||v;
+    const fn=flareOn?`<div style="background:#1a0e0e;border:0.5px solid #3d1414;border-radius:10px;padding:10px 13px;margin-bottom:10px;font-size:11px;color:#a03030;"><i class="ti ti-flame" style="font-size:13px;margin-right:6px;vertical-align:-1px;"></i>Flare mode active — tightened restrictions applied</div>`:'';
+    let ih=`<div style="font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#3d3d52;margin-bottom:8px;">Ingredient breakdown</div>`;
+    (d.ingredients||[]).forEach(ing=>{const iv=(ing.verdict||'ehh').toLowerCase();ih+=`<div class="ingr-row"><div class="idot ${iv}"></div><div style="flex:1;"><div class="iname">${ing.name}</div><div class="inote">${ing.reason}</div></div><span class="itag ${iv}">${{good:'Safe',ehh:'Watch',ugly:'Critical'}[iv]||iv}</span></div>`;});
+    let sh='';if(d.swaps&&d.swaps.length){sh=`<div class="swap-card"><div class="swap-top"><i class="ti ti-sparkles"></i><span>Safer swaps</span></div>${d.swaps.map(s=>`<div class="swap-item">${s}</div>`).join('')}</div>`;}
+    document.getElementById('result-content').innerHTML=`${fn}<div class="verdict-hero ${v}"><div class="vhicon ${v}"><i class="ti ${VI[v]}"></i></div><div><div class="vh-verdict ${v}">${vl}</div><div class="vh-name">${d.food_name||'Scanned food'}</div><div class="vh-sub">${d.summary||''}</div></div></div>${ih}${sh}<div style="display:flex;gap:8px;margin-top:6px;"><button class="ghost-btn" style="flex:1;" onclick="switchScanTab('camera')"><i class="ti ti-scan" style="font-size:13px;margin-right:4px;vertical-align:-1px;"></i>Scan again</button><button class="purple-btn" style="flex:1;padding:12px;"><i class="ti ti-check" style="font-size:13px;margin-right:4px;vertical-align:-1px;"></i>Log this</button></div>`;
+  }catch(err){
+    document.getElementById('result-content').innerHTML=`<div style="padding:24px;text-align:center;"><i class="ti ti-alert-triangle" style="font-size:28px;color:#501313;"></i><p style="font-size:12px;color:#7a3030;text-transform:uppercase;letter-spacing:0.1em;margin-top:10px;">Analysis failed</p><p style="font-size:11px;color:#3d3d52;margin-top:6px;">${err.message}</p><button class="ghost-btn" style="margin-top:16px;width:100%;" onclick="switchScanTab('camera')">Try again</button></div>`;
+  }finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-scan" style="font-size:14px;margin-right:6px;vertical-align:-1px;"></i>Analyse food';}
+}
+
+// Log
+const logData=[
+  {day:'Today',entries:[{name:'Chicken Caesar Wrap',verdict:'ehh',time:'1:14 pm',flags:['ugly','ehh'],meta:'3 flagged · Caesar dressing'},{name:'Oat porridge with banana',verdict:'good',time:'8:02 am',flags:[],meta:'No flags · well tolerated'}]},
+  {day:'Yesterday',entries:[{name:'Grilled salmon & rice',verdict:'good',time:'7:30 pm',flags:[],meta:'No flags · lean protein'},{name:'Spicy Thai noodles',verdict:'ugly',time:'1:05 pm',flags:['ugly','ugly','ehh'],meta:'4 flagged · chilli · garlic'},{name:'Greek yoghurt & honey',verdict:'ehh',time:'10:20 am',flags:['ehh'],meta:'1 flagged · dairy'}]},
+  {day:'Thu 21 May',entries:[{name:'Boiled eggs on toast',verdict:'good',time:'9:00 am',flags:[],meta:'No flags'},{name:'Vegetable soup',verdict:'good',time:'12:45 pm',flags:[],meta:'No flags · low residue'},{name:'Chocolate brownie',verdict:'ugly',time:'3:30 pm',flags:['ugly','ehh'],meta:'2 flagged · high fat'}]},
+];
+const dotData=[{n:'S',d:['empty']},{n:'M',d:['good','good','ehh']},{n:'T',d:['good','ugly']},{n:'W',d:['good','good','ehh']},{n:'T',d:['good','good','ugly']},{n:'F',d:['good','ugly','ehh']},{n:'S',d:['good','ehh'],today:true}];
+document.getElementById('week-days').innerHTML=dotData.map(d=>`<div class="day-col"><div class="day-name">${d.n}</div><div>${d.d.map(v=>`<div class="day-dot ${v}"></div>`).join('')}</div><div class="day-num${d.today?' today':''}">${d.today?'23':''}</div></div>`).join('');
+
+let activeFilter='all';
+function buildLog(){
+  let html='';
+  logData.forEach(sec=>{
+    const f=activeFilter==='all'?sec.entries:activeFilter==='flagged'?sec.entries.filter(e=>e.flags.length>0):sec.entries.filter(e=>e.verdict===activeFilter);
+    if(!f.length)return;
+    const score=sec.entries.filter(e=>e.verdict==='good').length+'/'+sec.entries.length+' good';
+    html+=`<div style="margin-top:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#3d3d52;">${sec.day}</span><span style="font-size:11px;color:#444458;">${score}</span></div>`;
+    f.forEach(e=>{
+      const vi={good:'ti-circle-check',ehh:'ti-alert-triangle',ugly:'ti-circle-x'}[e.verdict];
+      html+=`<div class="log-entry"><div class="entry-verdict ${e.verdict}"><i class="ti ${vi}"></i></div><div style="flex:1;min-width:0;"><div class="entry-name">${e.name}</div><div class="entry-meta">${e.meta}</div></div><div style="text-align:right;flex-shrink:0;"><div class="entry-time">${e.time}</div><div style="margin-top:4px;">${e.flags.map(f=>`<span class="flag-dot ${f}"></span>`).join('')}</div></div></div>`;
+    });
+    html+='</div>';
+  });
+  if(!html)html=`<div style="padding:40px 0;text-align:center;"><i class="ti ti-clipboard-off" style="font-size:28px;color:#2a2a38;"></i><p style="font-size:12px;color:#3d3d52;letter-spacing:0.1em;text-transform:uppercase;margin-top:10px;">No entries</p></div>`;
+  document.getElementById('log-list').innerHTML=html;
+}
+document.getElementById('filter-row').addEventListener('click',e=>{
+  const btn=e.target.closest('.f-pill');if(!btn)return;
+  document.querySelectorAll('.f-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');activeFilter=btn.dataset.filter;buildLog();
+});
+buildLog();
+</script>
+</body>
+</html>
