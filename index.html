@@ -530,7 +530,7 @@ const SCREENS=['home','scan','log','flare','profile'];
 var ARROW='<div class="icon-btn" onclick="goTo(\'home\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>';
 var HEADERS={
   home:{l:'<svg width="30" height="30" viewBox="0 0 34 34" fill="none"><ellipse cx="17" cy="17" rx="16" ry="16" stroke="#2d2840" stroke-width="0.75"/><path d="M17 6C11 6 7 10.5 7 17c0 5 3 8.5 7 9.5V22c-2-1-3-2.5-3-5 0-4.5 2.5-7 6-7s6 2.5 6 7c0 2.5-1 4-3 5v4.5c4-1 7-4.5 7-9.5 0-6.5-4-11-10-11z" fill="#7059c4" opacity="0.9"/></svg>',
-        c:'<span class="wordmark">bill\u2019s <span>bad</span> belly</span>',
+        c:'<img src="/logo.png" alt="bills bad belly" style="height:34px;width:auto;display:block;">',
         r:'<div class="icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>'},
   scan:{l:ARROW, c:'<span class="header-title">scan</span>',
         r:'<button class="flare-badge-btn" id="flare-scan-badge" onclick="toggleFlare()">Normal</button>'},
@@ -606,7 +606,7 @@ const VI={
 };
 async function runScan(){
   const text=document.getElementById('food-input').value.trim();
-  if(!text){alert('Please describe the food first.');return;}
+  if(!text && !capturedImageBase64){alert('Please describe the food or capture a photo first.');return;}
   const btn=document.getElementById('scan-btn');
   btn.disabled=true;btn.innerHTML='<svg style="font-size:14px;margin-right:6px;vertical-align:-1px;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>Analysing...';
   switchScanTab('result');
@@ -629,7 +629,14 @@ async function runScan(){
     document.getElementById('result-content').innerHTML=fn+'<div class="verdict-hero '+v+'"><div class="vhicon '+v+'">'+VI[v]+'</div><div><div class="vh-verdict '+v+'">'+vl+'</div><div class="vh-name">'+(d.food_name||'Scanned food')+'</div><div class="vh-sub">'+(d.summary||'')+'</div></div></div>'+ih+sh+'<div style="display:flex;gap:8px;margin-top:6px;"><button class="ghost-btn" style="flex:1;" onclick="switchScanTab(\'camera\')">Scan again</button><button class="purple-btn" style="flex:1;padding:12px;">Log this</button></div>';
   }catch(err){
     document.getElementById('result-content').innerHTML='<div style="padding:24px;text-align:center;"><p style="font-size:12px;color:#7a3030;text-transform:uppercase;letter-spacing:0.1em;margin-top:10px;">Analysis failed</p><p style="font-size:11px;color:#6E55A8;margin-top:6px;">'+err.message+'</p><button class="ghost-btn" style="margin-top:16px;width:100%;" onclick="switchScanTab(\'camera\')">Try again</button></div>';
-  }finally{btn.disabled=false;capturedImageBase64=null;btn.innerHTML='<svg style="font-size:14px;margin-right:6px;vertical-align:-1px;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 011-1h2M4 17v2a1 1 0 001 1h2M17 4h2a1 1 0 011 1v2M17 20h2a1 1 0 001-1v-2M5 12h14"/></svg>Analyse food';}
+  }finally{btn.disabled=false;capturedImageBase64=null;
+  document.getElementById('cam-preview').style.display='none';
+  document.getElementById('cam-video').style.display='none';
+  document.getElementById('retake-btn').style.display='none';
+  document.getElementById('capture-btn').style.display='none';
+  document.getElementById('cam-off').style.display='flex';
+  document.getElementById('start-cam-btn').style.display='block';
+  btn.innerHTML='<svg style="font-size:14px;margin-right:6px;vertical-align:-1px;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 011-1h2M4 17v2a1 1 0 001 1h2M17 4h2a1 1 0 011 1v2M17 20h2a1 1 0 001-1v-2M5 12h14"/></svg>Analyse food';}
 }
 
 // Log
